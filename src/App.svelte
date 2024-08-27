@@ -1,4 +1,7 @@
 <script>
+	import { sineInOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
+
 	let images = [];
 	let currentSlide = 0;
 
@@ -17,14 +20,21 @@
 	const prevSlide = () => {
 		currentSlide = (currentSlide - 1 + images.length) % images.length;
 	};
-	$: console.log(images.length);
 </script>
 
 <!-- Slider HTML -->
 <div class="slider">
 	{#if images.length > 0}
 		<div class="slide">
-			<img src={images[currentSlide].src} alt="" />
+			{#each images as image, index}
+				{#if index === currentSlide}
+					<img
+						transition:slide={{ duration: 600, easing: sineInOut, axis: 'x' }}
+						src={image.src}
+						alt={`Slide-${index}`}
+					/>
+				{/if}
+			{/each}
 		</div>
 		<button on:click={nextSlide} class="btn btn-next"
 			><svg xmlns="http://www.w3.org/2000/svg" width="0.5em" height="1em" viewBox="0 0 12 24"
@@ -54,11 +64,24 @@
 	{/if}
 </div>
 
+<!-- Slider Thumbnails -->
+<div class="thumbnail-wrapper">
+	{#if images.length > 0}
+		{#each images as image, index}
+			<img
+				class={`${currentSlide === index ? 'slideIndicator' : ''}`}
+				src={image.src}
+				alt={`Thumbnail-${index}`}
+			/>
+		{/each}
+	{/if}
+</div>
+
 <!-- Styles -->
 <style>
 	.slider {
 		width: 100%;
-		height: 85vh;
+		height: 75vh;
 		position: relative;
 		overflow: hidden;
 	}
@@ -98,5 +121,24 @@
 	.btn-next {
 		top: 45%;
 		right: 2%;
+	}
+
+	/* Thumbnail */
+	.thumbnail-wrapper {
+		display: flex;
+		gap: 20px;
+		height: 20vh;
+		margin: 17px;
+		overflow-x: scroll;
+	}
+	.thumbnail-wrapper img {
+		width: 300px;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 5px;
+		filter: opacity(0.5);
+	}
+	.slideIndicator {
+		filter: opacity(1) !important;
 	}
 </style>
